@@ -20,7 +20,8 @@ Before the workshop, please make sure that you have R and Rstudio installed on y
 
 | Time | Topic |
 |----- | ----------|
-|14:00 - 14:30: |  [Introduction to R](https://github.com/masurp/VU_CADC/blob/main/tutorials/R_basics_introduction.md) |14:30 - 15:00: |  Data wrangling and visualization with the tidyverse |
+|14:00 - 14:30: |  [Introduction to R](https://github.com/masurp/VU_CADC/blob/main/tutorials/R_basics_introduction.md) |
+|14:30 - 15:00: |  Data wrangling and visualization with the tidyverse |
 |15:00 - 15:30 | Basic statistics: Regression analysis |
 |15:30 - 16:00 | A glimpse into multilevel modeling |
 
