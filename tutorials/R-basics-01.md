@@ -14,14 +14,17 @@ Philipp Masur
     -   <a href="#installing-r" id="toc-installing-r">Installing R</a>
     -   <a href="#installing-rstudio" id="toc-installing-rstudio">Installing
         RStudio</a>
-    -   <a href="#using-rstudio" id="toc-using-rstudio">Using RStudio</a>
+-   <a href="#using-rstudio-for-simple-operations"
+    id="toc-using-rstudio-for-simple-operations">Using RStudio for simple
+    operations</a>
     -   <a href="#running-code-from-the-r-script"
         id="toc-running-code-from-the-r-script">Running code from the R
         script</a>
     -   <a href="#assigning-values-to-names"
         id="toc-assigning-values-to-names">Assigning values to names</a>
-    -   <a href="#using-rstudio-projects" id="toc-using-rstudio-projects">Using
-        RStudio projects</a>
+    -   <a href="#a-note-on-using-rstudio-projects"
+        id="toc-a-note-on-using-rstudio-projects">A Note on Using RStudio
+        projects</a>
 
 # Introduction
 
@@ -70,8 +73,6 @@ with it.
 For the current course material, you will need to install two pieces of
 software.
 
-![](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReenaHW13DG0WIxuTpSsBc4h4WBYZE6YImSZkuP0JMiSlItWoR39lvgznbqoO58OnuCJg&usqp=CAU)
-
 -   *R* is the actual R software, that is used to run R code.
 -   *RStudio* is a graphical user interface (GUI) that makes working
     with R much easier. While it is not required to use R, and there are
@@ -96,7 +97,7 @@ offer better features or anything, but just offer additional support and
 a commercial license. You can also use the free version when doing
 commercial research, but with an AGPL license.
 
-## Using RStudio
+# Using RStudio for simple operations
 
 Once you have installed R and RStudio, you can start by launching
 RStudio. If everything was installed correctly, RStudio will
@@ -109,7 +110,7 @@ To do so, go to the toolbar and select File -\> New File -\> R Script.
 You will now see four windows split evenly over the four corners of your
 screen:
 
-![](img/r1.png)
+![](../img/r1.png)
 
 -   In the **top-left** you have the text editor for the file that you
     are working in. This will most of the time be an R script or
@@ -191,7 +192,7 @@ x * 5
 Note that you shouldn’t type the line `## [1] 10`: in this tutorial,
 lines starting with `##` show the *output* of commands (2 \* 5 = 10).
 
-## Using RStudio projects
+## A Note on Using RStudio projects
 
 It is best to put all your code in an RStudio *project*. This is
 essentially a folder on your computer in which you can store the R files

@@ -35,8 +35,6 @@ The focus of this tutorial is to get you started with R, and to see how easy it 
 
 For the current course material, you will need to install two pieces of software.
 
-![](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReenaHW13DG0WIxuTpSsBc4h4WBYZE6YImSZkuP0JMiSlItWoR39lvgznbqoO58OnuCJg&usqp=CAU)
-
 * *R* is the actual R software, that is used to run R code. 
 * *RStudio* is a graphical user interface (GUI) that makes working with R much easier. While it is not required to use R, and there are other GUI's available, using RStudio is highly recommended.  
 
@@ -51,7 +49,7 @@ To install R, you can download it from the [CRAN (comprehensive R Archive Networ
 The [RStudio website](https://www.rstudio.com/) contains download links and installing instructions. You will need to install the free *RStudio Desktop Open Source License*. Note that the expensive licences do not offer better features or anything, but just offer additional support and a commercial license. You can also use the free version when doing commercial research, but with an AGPL license.
 
 
-## Using RStudio
+# Using RStudio for simple operations
 
 Once you have installed R and RStudio, you can start by launching RStudio. If everything was installed correctly, RStudio will automatically launch R as well. 
 
@@ -59,7 +57,7 @@ The first time you open RStudio, you will likely see three separate windows. The
 
 You will now see four windows split evenly over the four corners of your screen:
 
-![](img/r1.png)
+![](../img/r1.png)
 
 * In the **top\-left** you have the text editor for the file that you are working in. This will most of the time be an R script or RMarkdown file. 
 * In the **top-right** you can see the data and values that you are currently working with (environment) or view your history of input.
@@ -114,7 +112,8 @@ x * 5
 Note that you shouldn't type the line `## [1] 10`: in this tutorial, lines starting with `##` show the *output* of commands (2 * 5 = 10).
 
 
-## Using RStudio projects
+
+## A Note on Using RStudio projects
 
 It is best to put all your code in an RStudio *project*. This is essentially a folder on your computer in which you can store the R files and data for a project that you are working on. While you do not necessarily need a project to work with R, they are very convenient, and we strongly recommend using them.
 
