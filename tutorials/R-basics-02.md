@@ -1,0 +1,438 @@
+R tidyverse: Data Wrangling and Visualization
+================
+Philipp Masur
+2022-11
+
+-   <a href="#introduction" id="toc-introduction">Introduction</a>
+    -   <a href="#installing-tidyverse" id="toc-installing-tidyverse">Installing
+        tidyverse</a>
+-   <a href="#tidyverse-basics" id="toc-tidyverse-basics">Tidyverse
+    basics</a>
+    -   <a href="#reading-data" id="toc-reading-data">Reading data</a>
+-   <a href="#working-with-pipes" id="toc-working-with-pipes">Working with
+    Pipes</a>
+-   <a href="#data-summarization" id="toc-data-summarization">Data
+    Summarization</a>
+    -   <a href="#grouping-rows" id="toc-grouping-rows">Grouping rows</a>
+    -   <a href="#summarizing" id="toc-summarizing">Summarizing</a>
+    -   <a href="#using-mutate-with-group_by"
+        id="toc-using-mutate-with-group_by">Using mutate with group_by</a>
+-   <a href="#multiple-grouping-variables"
+    id="toc-multiple-grouping-variables">Multiple grouping variables</a>
+-   <a href="#a-basic-ggplot-plot" id="toc-a-basic-ggplot-plot">A basic
+    ggplot plot</a>
+    -   <a href="#loading-packages-and-data"
+        id="toc-loading-packages-and-data">Loading packages and data</a>
+    -   <a href="#building-a-layered-visualization"
+        id="toc-building-a-layered-visualization">Building a layered
+        visualization</a>
+    -   <a href="#other-aesthetics" id="toc-other-aesthetics">Other
+        aesthetics</a>
+-   <a href="#bar-plots" id="toc-bar-plots">Bar plots</a>
+
+# Introduction
+
+The goal of this practical session is to get you acquainted with the
+[Tidyverse](https://www.tidyverse.org/) and to learn how to transform
+and summarize data. Tidyverse is a collection of packages that have been
+designed around a singular and clearly defined set of principles about
+what data should look like and how we should work with it. It comes with
+a nice introduction in the [R for Data Science](http://r4ds.had.co.nz/)
+book, for which the digital version is available for free. This tutorial
+deals with most of the material in chapter 5 of that book.
+
+In this part of the tutorial, we’ll focus on working with data using the
+`tidyverse` package. This package includes the `dplyr` (data-pliers)
+packages, which contains most of the tools we’re using below, but it
+also contains functions for reading, analyzing and visualizing data that
+will be explained later.
+
+## Installing tidyverse
+
+As before, `install.packages()` is used to download and install the
+package (you only need to do this once on your computer) and `library()`
+is used to make the functions from this package available for use
+(required each session that you use the package).
+
+``` r
+install.packages('tidyverse') # only needed once
+```
+
+``` r
+library(tidyverse)
+```
+
+# Tidyverse basics
+
+As in most packages, the functionality in dplyr is offered through
+functions. In general, a function can be seen as a command or
+instruction to the computer to do something and (generally) return the
+result. In the tidverse package `dplyr`, almost all `functions`
+primarily operate on data sets, for example for filtering and sorting
+data.
+
+With a data set we mean a rectangular data frame consisting of rows
+(often items or respondents) and columns (often measurements of or data
+about these items). These data sets can be R `data.frames`, but
+tidyverse has its own version of data frames called `tibble`, which is
+functionally (almost) equivalent to a data frame but is more efficient
+and somewhat easier to use.
+
+As a very simply example, the following code creates a tibble containing
+respondents, their gender, and their height:
+
+``` r
+data <- tibble(resp = c(1,2,3), 
+               gender = c("M","F","F"), 
+               height = c(176, 165, 172))
+data
+```
+
+## Reading data
+
+The example above manually created a data set, but in most cases you
+will start with data that you get from elsewhere, such as a csv file
+(e.g. downloaded from an online dataset or exported from excel) or an
+SPSS or Stata data file.
+
+Tidyverse contains a function `read_csv` that allows you to read a csv
+file directly into a tibble. You specify the location of the file,
+either on your local drive (as we did in the last practical session) or
+directly from the Internet!
+
+The example below downloads an overview of gun polls from the [data
+analytics site 538](https://fivethirtyeight.com/), and reads it into a
+tibble using the read_csv function:
+
+``` r
+url <- "https://raw.githubusercontent.com/fivethirtyeight/data/master/poll-quiz-guns/guns-polls.csv"
+d <- read_csv(url)
+d
+```
+
+(Note that you can safely ignore the (red) message, they simply tell you
+how each column was parsed)
+
+The shows the first ten rows of the data set, and if the columns don’t
+fit they are not printed. The remaining rows and columns are printed at
+the bottom. For each column the data type is also mentioned (<int>
+stands for integer, which is a *numeric* value; <chr> is textual or
+*character* data). If you want to browse through your data, you can also
+click on the name of the data.frame (d) in the top-right window
+“Environment” tab or call `View(d)`.
+
+# Working with Pipes
+
+Data wrangling can often be seen as a *pipeline* of functions, where the
+output of each function is the input for the next function. Because this
+is so common, tidyverse offers a more convenient way of writing the code
+above using the pipeline operator `%>%`. In sort, whenever you write
+`f(a, x)` you can replace it by `a %>% f(x)`. If you then want to use
+the output of `f(a, x)` for a second function, you can just add it to
+the pipe: `a %>% f(x) %>% f2(y)` is equivalent to `f2(f(a,x), y)`, or
+more readable, `b=f(a,x); f2(b, y)`
+
+Put simply, pipes take the output of a function, and directly use that
+output as the input for the `.data` argument in the next function. As
+you have seen, all the `dplyr` functions that we discussed have in
+common that the first argument is a *tibble*, and all functions return a
+*tibble*. This is intentional, and allows us to pipe all the functions
+together.
+
+This seems a bit abstract, but consider the code below, which is a
+collection of statements from above:
+
+``` r
+d <- read_csv(url)
+age21 <- filter(d, Question == 'age-21')
+age21 <- mutate(age21, party_diff = abs(`Republican Support` - `Democratic Support`))
+age21 <- select(age21, Question, Pollster, party_diff)
+arrange(age21, -party_diff)
+```
+
+To recap, this reads the csv, filters by question, computes the
+difference, drops other variables, and sorts. Since the output of each
+function is the input of the next, we can also write this as a single
+pipeline:
+
+``` r
+read_csv(url) %>% 
+  filter(Question == 'age-21') %>% 
+  mutate(party_diff = abs(`Republican Support` - `Democratic Support`)) %>%
+  select(Question, Pollster, party_diff) %>% 
+  arrange(-party_diff)
+```
+
+The nice thing about pipes is that it makes it really clear what you are
+doing. Also, it doesn’t require making many intermediate objects (such
+as `ds`). If applied right, piping allows you to make nicely contained
+pieces of code to perform specific parts of your analysis from raw input
+straight to results, including statistical modeling or visualization. It
+usually makes sense to have each “step” in the pipeline in its own line.
+This way, we can easily read the code line by line
+
+Of course, you probably don’t want to replace your whole script with a
+single pipe, and often it is nice to store intermediate values. For
+example, you might want to download, clean, and subset a data set before
+doing multiple analyses with it. In that case, you probably want to
+store the result of downloading, cleaning, and subsetting as a variable,
+and use that in your analyses.
+
+# Data Summarization
+
+The functions used in the earlier part on data preparation worked on
+individual rows. Sometimes, you need to compute properties of groups of
+rows (cases). This is called aggregation (or summarization) and in
+tidyverse uses the `group_by` function followed by either `summarize` or
+`mutate`.
+
+Let’s again work with the gun-poll data, remove the URL and rename some
+variables.
+
+``` r
+d <- d %>% 
+  select(-URL) %>% 
+  rename(Rep = `Republican Support`, Dem = `Democratic Support`)
+d
+```
+
+## Grouping rows
+
+Now, we can use the group_by function to group by, for example,
+pollster:
+
+``` r
+d %>% 
+  group_by(Question)
+```
+
+As you can see, the data itself didn’t actually change yet, it merely
+recorded (at the top) that we are now grouping by Question, and that
+there are 8 groups (different questions) in total.
+
+## Summarizing
+
+To summarize, you follow the group_by with a call to `summarize`.
+Summarize has a syntax that is similar to mutate:
+`summarize(column = calculation, ...)`. The crucial difference, however,
+is that you always need to use a function in the calculation, and that
+function needs to compute a single summary value given a vector of
+values. Very common summarization functions are sum, mean, and sd
+(standard deviation).
+
+For example, the following computes the average support per question
+(and sorts by descending support):
+
+``` r
+d %>% 
+  group_by(Question) %>%                    ## group by "Questions"
+  summarize(Support = mean(Support)) %>%    ## average "Support" per group
+  arrange(-Support)                         ## sort based on "Support"
+```
+
+As you can see, summarize drastically changes the shape of the data.
+There are now rows equal to the number of groups (8), and the only
+columns left are the grouping variables and the summarized values.
+
+## Using mutate with group_by
+
+The examples above all reduce the number of cases to the number of
+groups. Another option is to use mutate after a group_by, which allows
+you to add summary values to the rows themselves.
+
+For example, suppose we wish to see whether a certain poll has a
+different prediction from the average polling of that question. We can
+group_by question and then use mutate to calculate the average support:
+
+``` r
+d2 <- d %>% 
+  group_by(Question) %>%
+  mutate(avg_support = mean(Support), 
+         diff = Support - avg_support)
+d2
+```
+
+As you can see, where summarize reduces the rows and columns to the
+groups and summaries, mutate adds a new column which is identical for
+all rows within a group.
+
+# Multiple grouping variables
+
+The above examples all used a single grouping variable, but you can also
+group by multiple columns. For example, I could compute average support
+per question and per population:
+
+``` r
+d %>% 
+  group_by(Question, Population) %>% 
+  summarize(Support = mean(Support))
+```
+
+This results in a data set with one row per unique group,
+i.e. combination of Question and Population, and with separate columns
+for each grouping column and the summary values.
+
+# A basic ggplot plot
+
+## Loading packages and data
+
+Suppose that we want to see the relation between college education and
+household income, both included in the `county facts` subset published
+by [Houston Data Visualisation github
+page](https://github.com/houstondatavis/data-jam-august-2016).
+
+(If you want to practice downloading a data set into a folder and
+loading it from there: you can find the data set on Canvas as well. Bear
+in mind to set the working directory correctly).
+
+``` r
+# Download data
+csv_folder_url <- "https://raw.githubusercontent.com/houstondatavis/data-jam-august-2016/master/csv"  # URL to folder 
+facts <- read_csv(paste(csv_folder_url, "county_facts.csv", sep = "/")) # pasting folder path and file name together
+facts
+```
+
+Since this data set contains a large amount of columns, we keep only a
+subset of columns for now:
+
+``` r
+# Selecting columns and filtering 
+facts_state <- facts %>% 
+  select(fips, area_name, state_abbreviation, 
+         population = Pop_2014_count, 
+         pop_change = Pop_change_pct,
+         over65 = Age_over_65_pct, 
+         female = Sex_female_pct,
+         white = Race_white_pct,
+         college = Pop_college_grad_pct, 
+         income = Income_per_capita) %>%
+  filter(is.na(state_abbreviation) & fips != 0) %>% 
+  select(-state_abbreviation)
+
+# Check results
+facts_state
+```
+
+## Building a layered visualization
+
+Now, let’s make a simple *scatter plot* with percentage college-educated
+on the x-axis and median income on the y-axis. First, we can used the
+function `ggplot` to create an empty canvas tied to the dataset
+`facts_state` and tell the function which variables to use:
+
+``` r
+ggplot(data = facts_state,        ## which data set?
+       aes(x=college, y=income))  ## which variables as aesthetics?
+```
+
+Next, we need to tell ggplot what to plot. In this case, we want to
+produce a scatterplot. The function `geom_point` adds a layer of
+information to the canvas. In the language of ggplot, each layer has a
+*geometrical representation*, in this case “points”. In this case, the
+“x” and “y” are mapped to the college and income columns.
+
+``` r
+ggplot(data = facts_state,
+       mapping = aes(x = college, y = income)) + 
+  geom_point()   ## adding the geometrical representation
+```
+
+The result is a plot where each point here represents a state, and we
+see a clear correlation between education level and income. There is one
+clear outlier on the top-right. Can you guess which state that is?
+
+So called *aesthetic mappings*, which map the visual elements of the
+geometry to columns of the data, can also be included as argument in the
+`geom` itself and not in the `ggplot()?` command. This can be handy when
+several `geoms` are plotted and different aesthetics are used. For
+example, we can add more `geoms` to the plot (e.g., a regression line).
+If we provided the aesthetics within the `ggplot`-function, these are
+passed automatically to the following `geoms`.
+
+``` r
+# Linear regression line
+ggplot(data = facts_state, 
+       mapping = aes(x = college, y = income)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+## Other aesthetics
+
+To find out which visual elements can be used in a layer, use
+e.g. `?geom_point`. According to the help file, we can (among others)
+set the colour, alpha (transparency), and size of points. Let’s first
+set the size of points to the population of each state, creating a
+bubble plot:
+
+``` r
+ggplot(data = facts_state) + 
+  geom_point(aes(x = college, y = income, size = population))
+```
+
+Since it is difficult to see overlapping points, let’s make all points
+somewhat transparent. Note: Since we want to set the alpha of all points
+to a single value, this is not a mapping (as it is not mapped to a
+column from the data frame), but a constant. These are set outside the
+mapping argument:
+
+``` r
+ggplot(data = facts_state) + 
+  geom_point(aes(x = college, y = income, size = population), 
+             alpha = .5, 
+             colour = "red")
+```
+
+Instead of setting colour to a constant value, we can also let it vary
+with the data. For example, we can colour the states by percentage of
+population above 65:
+
+``` r
+ggplot(data = facts_state) + 
+  geom_point(aes(x = college, y = income, size = population, colour = over65), 
+             alpha = .9)
+```
+
+Finally, you can map to a categorical value as well. Let’s categorize
+states into whether population is growing (at least 1%) or stable or
+declining. We use the `if_else(condition, iftrue, iffalse)` function,
+which assigns the `iftrue` value if the condition is true, and `iffalse`
+otherwise:
+
+``` r
+# Creating a new variable
+facts_state <- facts_state %>% 
+  mutate(growth = ifelse(pop_change > 1, "Growing", "Stable"))
+
+# Plotting a categorical variable
+ggplot(data=facts_state) + 
+  geom_point(aes(x = college, y = income, size = population, colour = growth), 
+             alpha=.9)
+```
+
+As you can see in these examples, ggplot tries to be smart about the
+mapping you ask. It automatically sets the x and y ranges to the values
+in your data. It mapped the size such that there are small and large
+points, but not e.g. a point so large that it would dominate the graph.
+For the colour, for interval variables it created a colour scale, while
+for a categorical variable it automatically assigned a colour to each
+group.
+
+Of course, each of those choices can be customized, and sometimes it
+makes a lot of sense to do so. For example, you might wish to use red
+for republicans and blue for democrats, if your audience is used to
+those colors; or you may wish to use grayscale for an old-fashioned
+paper publication. We’ll explore more options in a later tutorial, but
+for now let’s be happy that ggplot does a lot of work for us!
+
+# Bar plots
+
+Another frequently used plot is the bar plot. By default, R bar plots
+assume that you want to plot a histogram, e.g. the number of occurences
+of each group. As a very simple example, the following plots the number
+of states that are growing or stable in population:
+
+``` r
+ggplot(data = facts_state) + 
+  geom_bar(aes(x = growth))
+```
